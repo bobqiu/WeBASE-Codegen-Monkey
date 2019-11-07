@@ -15,6 +15,7 @@
  */
 package com.webank.webasemonkey.code.template.paras;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,8 +30,10 @@ import com.webank.webasemonkey.config.SystemEnvironmentConfig;
 import com.webank.webasemonkey.constants.ConfigFileConstants;
 import com.webank.webasemonkey.constants.ParserConstants;
 import com.webank.webasemonkey.constants.TemplateConstants;
+import com.webank.webasemonkey.enums.SubProjectEnum;
 import com.webank.webasemonkey.enums.SysTableEnum;
 import com.webank.webasemonkey.tools.PropertiesUtils;
+import com.webank.webasemonkey.tools.SqlNameUtils;
 import com.webank.webasemonkey.tools.StringStyleUtils;
 import com.webank.webasemonkey.vo.ContractInfo;
 import com.webank.webasemonkey.vo.ContractStructureMetaInfo;
@@ -52,6 +55,8 @@ public class DBEnvironmentParas implements ConfigGenerateParas {
 
     @Autowired
     protected SystemEnvironmentConfig systemEnvironmentConfig;
+    @Autowired
+    private SqlNameUtils sqlNameUtils;
 
     @Override
     public Map<String, Object> getMap(ContractInfo contractsInfo) {
@@ -87,8 +92,7 @@ public class DBEnvironmentParas implements ConfigGenerateParas {
         List<ContractStructureMetaInfo> list = new ArrayList<>();
         for (ContractStructureMetaInfo info : ContractStructureMetaInfoList) {
             if (info.getShardingNO() > 1) {
-                String tableName = StringStyleUtils.upper2underline(info.getContractName()) + "_"
-                        + StringStyleUtils.upper2underline(info.getName());
+                String tableName = sqlNameUtils.getSqlName(info.getContractName(), info.getName());
                 info.setName(tableName);
                 list.add(info);
             }
@@ -103,6 +107,6 @@ public class DBEnvironmentParas implements ConfigGenerateParas {
 
     @Override
     public String getGeneratedFilePath(ContractInfo contractsInfo) {
-        return ConfigFileConstants.GENERATED_DB_ENV_FILE_PATH;
+        return SubProjectEnum.CORE.getPathName() + File.separator + ConfigFileConstants.GENERATED_DB_ENV_FILE_PATH;
     }
 }
